@@ -38,6 +38,15 @@ public class Club {
                 case 3:
                    
                     break;
+                case 4:
+                   
+                    break;
+                case 5:
+                   
+                    break;
+                case 6:
+                   
+                    break;
                 default:
                     System.out.println("Opción no válida.");
             }
@@ -51,6 +60,7 @@ public class Club {
             Scanner scanner = new Scanner(System.in);
             
             Socio socio = new Socio();
+            Membership membership = new Membership();
             
             //Creaciopn de id universal
             socio.setId(UUID.randomUUID().toString());
@@ -75,9 +85,12 @@ public class Club {
             System.out.print("\nPor favor, ingrese la edad: ");
             socio.setAge(scanner.next());
             
-            //añadir el paciente  a la lista de pacientes
-            socios.add(socio);
+            System.out.println("Seleciona el tipo de membrecia: \n(digita 1 para VIP  \n digita 2 para Regular) ");
+
             
+            //añadir asocio a la lista de socios
+            socios.add(socio);
+          
             
             System.out.print("\nSocio agregado exitosamente.\n");
         } else{
@@ -100,8 +113,7 @@ public class Club {
         }
         System.out.println("\n\n");
     } 
-            
-       
-      
+
+  
 }
 

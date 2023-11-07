@@ -1,7 +1,13 @@
 
 package com.mycompany.club;
 
+import com.mycompany.club.model.Account;
+import com.mycompany.club.model.Membership;
+import com.mycompany.club.model.Socio;
+import com.mycompany.club.utils.MembershipStatus;
+import com.mycompany.club.utils.MembershipType;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
@@ -12,6 +18,8 @@ import java.util.UUID;
 public class Club {
 
     public static List<Socio> socios = new ArrayList<>();
+    public static List<Membership> memberships = new ArrayList<>();
+    public static List<Account> accounts = new ArrayList<>();
 
     public static void main(String[] args) {
         
@@ -61,9 +69,19 @@ public class Club {
             
             Socio socio = new Socio();
             Membership membership = new Membership();
+            Account account = new Account();
             
             //Creaciopn de id universal
             socio.setId(UUID.randomUUID().toString());
+            membership.setId(UUID.randomUUID().toString());
+            account.setCreated_at(new Date());
+            account.setUpdated_at(new  Date());
+            account.setId_socio(socio.getId());
+            membership.setId_socio(socio.getId());
+            membership.setCreated_at(new Date());
+            membership.setUpdated_at(new Date());
+            membership.setStatus(MembershipStatus.ACTIVA);
+            
             
             System.out.print("\nPor favor, ingrese el nombre del socio: ");
             socio.setFirst_name(scanner.next());
@@ -86,11 +104,23 @@ public class Club {
             socio.setAge(scanner.next());
             
             System.out.println("Seleciona el tipo de membrecia: \n(digita 1 para VIP  \n digita 2 para Regular) ");
-
+            switch (scanner.nextInt()) {
+                case 1 -> { 
+                    membership.setType(MembershipType.VIP);
+                    account.setMoney(100000);
+                }
+                case 2 -> {
+                    membership.setType(MembershipType.REGULAR);
+                    account.setMoney(50000);
+                }    
+                default -> System.out.println("Debes de seleccionar una de las opciones mostrada en pantalla.");
+            }
+           
             
             //añadir asocio a la lista de socios
             socios.add(socio);
-          
+            memberships.add(membership);
+            accounts.add(account);
             
             System.out.print("\nSocio agregado exitosamente.\n");
         } else{
@@ -109,7 +139,8 @@ public class Club {
             
     public static void mostrarSocios() {
         for (Socio socio : socios) {
-            System.out.println(socio.getFirst_name() + " - " + socio.getLast_name() + " - " + socio.getDocument_number());
+            Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socio.getId())).findFirst().get();
+            System.out.println(socio.getFirst_name() + " - " + socio.getLast_name() + " - " + socio.getDocument_number() + " - " + membership.getType());
         }
         System.out.println("\n\n");
     } 

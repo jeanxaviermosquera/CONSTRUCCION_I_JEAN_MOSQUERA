@@ -1,28 +1,32 @@
 
-package com.mycompany.club;
+package com.mycompany.club.model;
 
+import com.mycompany.club.utils.MembershipStatus;
+import com.mycompany.club.utils.MembershipType;
 import java.util.Date;
 
 /**
  * @author Usuario
  */
-public class Account {
+public class Membership {
     private String id;
     private String id_socio;
-    private double money;
+    private MembershipType type;
     private Date created_at;
     private Date updated_at;
+    private MembershipStatus status;
 
-    public Account() {
-    }
+    public Membership() {}
 
-    public Account(String id, String id_socio, double money, Date created_at, Date updated_at) {
+    public Membership(String id, String id_socio, MembershipType type, Date created_at, Date updated_at, MembershipStatus status) {
         this.id = id;
         this.id_socio = id_socio;
-        this.money = money;
+        this.type = type;
         this.created_at = created_at;
         this.updated_at = updated_at;
+        this.status = status;
     }
+
     
     //Metodos
 
@@ -42,12 +46,12 @@ public class Account {
         this.id_socio = id_socio;
     }
 
-    public double getMoney() {
-        return money;
+    public MembershipType getType() {
+        return type;
     }
 
-    public void setMoney(double money) {
-        this.money = money;
+    public void setType(MembershipType type) {
+        this.type = type;
     }
 
     public Date getCreated_at() {
@@ -65,5 +69,14 @@ public class Account {
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
     }
-    
+
+    public MembershipStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MembershipStatus status) {
+        this.status = status;
+    }
+
+   
 }

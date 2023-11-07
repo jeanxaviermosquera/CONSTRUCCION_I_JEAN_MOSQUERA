@@ -1,5 +1,5 @@
 
-package com.mycompany.club;
+package com.mycompany.club.model;
 
 /**
  * @author Usuario

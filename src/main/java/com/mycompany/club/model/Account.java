@@ -1,29 +1,28 @@
 
-package com.mycompany.club;
+package com.mycompany.club.model;
 
 import java.util.Date;
 
 /**
  * @author Usuario
  */
-public class Membership {
+public class Account {
     private String id;
-    private String type;
+    private String id_socio;
+    private double money;
     private Date created_at;
     private Date updated_at;
-    private String status;
 
-    public Membership() {
+    public Account() {
     }
 
-    public Membership(String id, String type, Date created_at, Date updated_at, String status) {
+    public Account(String id, String id_socio, double money, Date created_at, Date updated_at) {
         this.id = id;
-        this.type = type;
+        this.id_socio = id_socio;
+        this.money = money;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        this.status = status;
     }
-    
     
     //Metodos
 
@@ -35,12 +34,20 @@ public class Membership {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public String getId_socio() {
+        return id_socio;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setId_socio(String id_socio) {
+        this.id_socio = id_socio;
+    }
+
+    public double getMoney() {
+        return money;
+    }
+
+    public void setMoney(double money) {
+        this.money = money;
     }
 
     public Date getCreated_at() {
@@ -57,14 +64,6 @@ public class Membership {
 
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
     
 }

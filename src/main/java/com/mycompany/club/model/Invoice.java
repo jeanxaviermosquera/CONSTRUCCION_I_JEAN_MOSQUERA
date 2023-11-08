@@ -1,25 +1,26 @@
 
 package com.mycompany.club.model;
 
+import com.mycompany.club.utils.InvoiceStatus;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Usuario
  */
-public class Factura {
+public class Invoice {
    private String id;
    private String id_socio;
-   private String status;
+   private InvoiceStatus status;
    private double amount;
    private Date created_at;
    private Date updated_at;
    private List<Items> items;
 
-    public Factura() {
+    public Invoice() {
     }
 
-    public Factura(String id, String id_socio, String status, double amount, Date created_at, Date updated_at, List<Items> items) {
+    public Invoice(String id, String id_socio, InvoiceStatus status, double amount, Date created_at, Date updated_at, List<Items> items) {
         this.id = id;
         this.id_socio = id_socio;
         this.status = status;
@@ -49,11 +50,11 @@ public class Factura {
         this.id_socio = id_socio;
     }
 
-    public String getStatus() {
+    public InvoiceStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(InvoiceStatus status) {
         this.status = status;
     }
 

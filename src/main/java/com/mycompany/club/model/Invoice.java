@@ -11,6 +11,8 @@ import java.util.List;
 public class Invoice {
    private String id;
    private String id_socio;
+   private String name_socio;
+   private String concept;
    private InvoiceStatus status;
    private double amount;
    private Date created_at;
@@ -20,17 +22,17 @@ public class Invoice {
     public Invoice() {
     }
 
-    public Invoice(String id, String id_socio, InvoiceStatus status, double amount, Date created_at, Date updated_at, List<Items> items) {
+    public Invoice(String id, String id_socio, String name_socio, String concept, InvoiceStatus status, double amount, Date created_at, Date updated_at, List<Items> items) {
         this.id = id;
         this.id_socio = id_socio;
+        this.name_socio = name_socio;
+        this.concept = concept;
         this.status = status;
         this.amount = amount;
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.items = items;
     }
-
-    
    
    //Metodos
 
@@ -89,6 +91,24 @@ public class Invoice {
     public void setItems(List<Items> items) {
         this.items = items;
     }
+
+    public String getName_socio() {
+        return name_socio;
+    }
+
+    public void setName_socio(String name_socio) {
+        this.name_socio = name_socio;
+    }
+
+    public String getConcept() {
+        return concept;
+    }
+
+    public void setConcept(String concept) {
+        this.concept = concept;
+    }
+    
+    
 
    
 }

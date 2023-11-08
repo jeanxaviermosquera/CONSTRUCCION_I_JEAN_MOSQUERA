@@ -3,6 +3,7 @@ package com.mycompany.club;
 import com.mycompany.club.model.Account;
 import com.mycompany.club.model.Beneficiary;
 import com.mycompany.club.model.Invoice;
+import com.mycompany.club.model.Items;
 import com.mycompany.club.model.Membership;
 import com.mycompany.club.model.Socio;
 import com.mycompany.club.utils.InvoiceStatus;
@@ -33,9 +34,11 @@ public class Club {
             System.out.println("1. Afiliar socio.");
             System.out.println("2. Registrar persona autorizada.");
             System.out.println("3. Pagar factura.");
-            System.out.println("4. Aumentar fondos.");
-            System.out.println("5. Eliminar socio.");
-            System.out.println("6. Mostrar socios.");
+            System.out.println("4. Registrar un consumo en la cuenta de un socio.");
+            System.out.println("5. Aumentar fondos.");
+            System.out.println("6. Eliminar socio.");
+            System.out.println("7. Mostrar socios.");
+            System.out.println("8. Mostrar facturas.");
             System.out.println("Seleccione una opcion: ");
 
             Scanner scanner = new Scanner(System.in);
@@ -52,13 +55,19 @@ public class Club {
                     //payInvoice();
                     break;
                 case 4:
-                    addMoreMoneyToAccount();
+                    createConsumption();
                     break;
                 case 5:
-                    deleteSocioById();
+                    addMoreMoneyToAccount();
                     break;
                 case 6:
+                    deleteSocioById();
+                    break;
+                case 7:
                     showSocios();
+                    break;
+                case 8:
+                    showInvoices();
                     break;
                 default:
                     System.out.println("Opción no válida.");
@@ -67,42 +76,110 @@ public class Club {
         }
 
     }
-    
-    private static void addMoreMoneyToAccount(){
+
+    private static void createConsumption() {
+        Scanner scanner = new Scanner(System.in);
+
+        Invoice invoice = new Invoice();
+        List<Items> items = new ArrayList<>();
+        int total = 0;
+
+        invoice.setCreated_at(new Date());
+        invoice.setUpdated_at(new Date());
+        invoice.setStatus(InvoiceStatus.PENDING);
+
+        System.out.println("Ingresa concepto de la factura: ");
+        invoice.setConcept(scanner.nextLine());
+
+        System.out.println("Para ingresar los items de la factura, utiliza el siguiente formato: nombre del item 1,precio; nombre del item 2,precio;");
+        System.out.println("Ejemplo: Portatil,1000000;nevera,320000");
+        System.out.println("Ingresa los items:  \n");
+
+        String itemsValue = scanner.nextLine();
+
+        try {
+            if (!itemsValue.isEmpty()) {
+                String[] itemsSplited = itemsValue.split(";");
+                for (String item : itemsSplited) {
+                    String[] itemsFinalSplited = item.split(",");
+                    items.add(new Items(itemsFinalSplited[0], itemsFinalSplited[1]));
+                    total = total + Integer.parseInt(itemsFinalSplited[1]);
+                }
+                invoice.setItems(items);
+                invoice.setAmount(total);
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("Ingresa el numero de documento del socio al que se le debe registrar esta factura: ");
+        String documentNumber = scanner.next();
+
+        List<Socio> socioFiltered = socios.stream().filter(item -> item.getDocument_number().equals(documentNumber)).toList();
+
+        if (socioFiltered.isEmpty()) {
+            System.out.println("No existe un socio con la cédula recibida como parámetro.");
+            return;
+        }
+        
+        invoice.setId_socio(socioFiltered.get(0).getId());
+
+        double result = amountAvailableBySocio(socioFiltered.get(0).getId()) - total;
+        if (result >= 0) {
+            invoices.add(invoice);
+            System.out.println("Factura registrada exitosamente.");
+            return;
+        } else {
+            System.out.println("No se puede registrar la factura por falta de fondos.");
+            return;
+        }
+
+    }
+
+    private static void addMoreMoneyToAccount() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Ingresa el numero de documento del socio que deseas ingresar mas dinero a la cuenta: ");
         String documentNumber = scanner.next();
-        
+
         System.out.println("Ingresa monto que deseas ingresar a la cuenta: ");
         double amount = scanner.nextDouble();
 
         List<Socio> socioFiltered = socios.stream().filter(item -> item.getDocument_number().equals(documentNumber)).toList();
-        
-        if(socioFiltered.isEmpty()){
-             System.out.println("No existe un socio con la cédula recibida como parámetro.");
+
+        if (socioFiltered.isEmpty()) {
+            System.out.println("No existe un socio con la cédula recibida como parámetro.");
             return;
         }
-        
+
         Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).findFirst().get();
         if (membership.getType().equals(MembershipType.VIP)) {
-            if(amount > 5000000){
+            if (amount > 5000000) {
                 System.out.println("Para VIP se puede agregar maximo $5'000.000 a la cuenta.");
                 return;
             } else {
-                accounts.forEach(account -> account.setMoney(account.getMoney() + amount));
+                accounts.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getDocument_number()))
+                        .forEach(account -> account.setMoney(account.getMoney() + amount));
+                accounts.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getDocument_number()))
+                        .forEach(account -> account.setUpdated_at(new Date()));
+                System.out.println("Cuenta fondeada exitosamente.");
             }
         }
-        
+
         if (membership.getType().equals(MembershipType.REGULAR)) {
-            if(amount > 1000000){
+            if (amount > 1000000) {
                 System.out.println("Para REGULAR se puede agregar maximo $1'000.000 a la cuenta.");
                 return;
             } else {
-                accounts.forEach(account -> account.setMoney(account.getMoney() + amount));
+                accounts.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getDocument_number()))
+                        .forEach(account -> account.setMoney(account.getMoney() + amount));
+                accounts.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getDocument_number()))
+                        .forEach(account -> account.setUpdated_at(new Date()));
+                System.out.println("Cuenta fondeada exitosamente.");
             }
         }
-        
+
     }
 
     private static boolean deleteSocioById() {
@@ -137,10 +214,10 @@ public class Club {
             System.out.println("No se puede eliminar un socio con más de un beneficiario.");
             return false;
         }
-        
+
         //Deleting socio
         socios.stream()
-               .filter(item -> item.getDocument_number().equals(documentNumber))
+                .filter(item -> item.getDocument_number().equals(documentNumber))
                 .findFirst()
                 .map(socio -> {
                     socios.remove(socio);
@@ -226,7 +303,7 @@ public class Club {
 
     }
 
-    public static boolean checkIfDocumentNumberExist(String documentNumber, String userType) {
+    private static boolean checkIfDocumentNumberExist(String documentNumber, String userType) {
         switch (userType) {
             case "socio" -> {
                 for (Socio socio : socios) {
@@ -250,15 +327,22 @@ public class Club {
         }
     }
 
-    public static void showSocios() {
+    private static void showSocios() {
         for (Socio socio : socios) {
             Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socio.getId())).findFirst().get();
             System.out.println(socio.getId() + "-" + socio.getFirst_name() + " - " + socio.getLast_name() + " - " + socio.getDocument_number() + " - " + membership.getType());
         }
         System.out.println("\n\n");
     }
+    
+      private static void showInvoices() {
+        for (Invoice invoice : invoices) {
+            System.out.println(invoice.getId_socio() + "-" + invoice.getAmount()+ " - " + invoice.getStatus()+ " - " + invoice.getConcept());
+        }
+        System.out.println("\n\n");
+    }
 
-    public static void addBeneficiaries() {
+    private static void addBeneficiaries() {
         Scanner scanner = new Scanner(System.in);
         Beneficiary beneficiary = new Beneficiary();
 
@@ -309,12 +393,12 @@ public class Club {
 
     }
 
-    public static int numberOfBeneficiariesRegisteredBySocio(String id_socio) {
+    private static int numberOfBeneficiariesRegisteredBySocio(String id_socio) {
         List<Beneficiary> beneficiariesBySocio = beneficiaries.stream().filter(item -> item.getId_socio().equals(id_socio)).toList();
         return beneficiariesBySocio.size();
     }
 
-    public static boolean checkIfSoicioCanAddBeneficiary(String id_socio) {
+    private static boolean checkIfSoicioCanAddBeneficiary(String id_socio) {
         List<Invoice> invoicesFiltered = invoices.stream().filter(item -> item.getId_socio().equals(id_socio)).toList();
         Account account = accounts.stream().filter(item -> item.getId_socio().equals(id_socio)).findFirst().get();
 
@@ -328,6 +412,22 @@ public class Club {
         }
         result = account.getMoney() - total;
         return result > 0;
+    }
+
+    private static double amountAvailableBySocio(String id_socio) {
+        List<Invoice> invoicesFiltered = invoices.stream().filter(item -> item.getId_socio().equals(id_socio)).toList();
+        Account account = accounts.stream().filter(item -> item.getId_socio().equals(id_socio)).findFirst().get();
+
+        double total = 0;
+        double result;
+
+        for (Invoice invoice : invoicesFiltered) {
+            if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+                total = total + invoice.getAmount();
+            }
+        }
+        result = account.getMoney() - total;
+        return result;
     }
 
     private static boolean checkIsCanBeAddNewSocio(MembershipType type) {

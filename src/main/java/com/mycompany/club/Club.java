@@ -43,22 +43,22 @@ public class Club {
 
             switch (option) {
                 case 1:
-                    afiliarSocio();
+                    createSocio();
                     break;
                 case 2:
-                    personasAutorizadas();
+                    addBeneficiaries();
                     break;
                 case 3:
-
+                    payInvoice();
                     break;
                 case 4:
-
+                    addMoreMoneyToAccount();
                     break;
                 case 5:
-
+                    deleteSocioById();
                     break;
                 case 6:
-                    mostrarSocios();
+                    showSocios();
                     break;
                 default:
                     System.out.println("Opción no válida.");
@@ -68,7 +68,19 @@ public class Club {
 
     }
 
-    private static void afiliarSocio() {
+    private static void deleteSocioById() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Para eliminar un socio primero debes seleccionarlo\n.");
+        System.out.println("Esta es nuestra lista de socios:\n ");
+        showSocios();
+
+        System.out.println("Ahora, copia y pega el ID del socio acontinuacion: ");
+
+        String id_socio = scanner.next();
+    }
+
+    private static void createSocio() {
         if (socios.size() < 35) {
             System.out.println("");
             Scanner scanner = new Scanner(System.in);
@@ -109,25 +121,35 @@ public class Club {
             }
 
             System.out.println("Seleciona el tipo de membrecia: \n(digita 1 para VIP  \n digita 2 para Regular) ");
-            switch (scanner.nextInt()) {
+            int membershipType = scanner.nextInt();
+            MembershipType type;
+
+            switch (membershipType) {
                 case 1 -> {
+                    type = MembershipType.VIP;
                     membership.setType(MembershipType.VIP);
                     account.setMoney(100000);
                 }
                 case 2 -> {
+                    type = MembershipType.REGULAR;
                     membership.setType(MembershipType.REGULAR);
                     account.setMoney(50000);
                 }
-                default ->
+                default -> {
                     System.out.println("Debes de seleccionar una de las opciones mostrada en pantalla.");
+                    return;
+                }
+            }
+            if (checkIsCanBeAddNewSocio(type)) {
+                socios.add(socio);
+                memberships.add(membership);
+                accounts.add(account);
+                System.out.print("\nSocio agregado exitosamente.\n");
+            } else {
+                System.out.println("Ya no puedes agregar mas socios VIP.");
+                return;
             }
 
-            //añadir asocio a la lista de socios
-            socios.add(socio);
-            memberships.add(membership);
-            accounts.add(account);
-
-            System.out.print("\nSocio agregado exitosamente.\n");
         } else {
             System.out.println("Ya no se pueden agregar mas socios");
         }
@@ -158,7 +180,7 @@ public class Club {
         }
     }
 
-    public static void mostrarSocios() {
+    public static void showSocios() {
         for (Socio socio : socios) {
             Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socio.getId())).findFirst().get();
             System.out.println(socio.getId() + "-" + socio.getFirst_name() + " - " + socio.getLast_name() + " - " + socio.getDocument_number() + " - " + membership.getType());
@@ -166,13 +188,13 @@ public class Club {
         System.out.println("\n\n");
     }
 
-    public static void personasAutorizadas() {
+    public static void addBeneficiaries() {
         Scanner scanner = new Scanner(System.in);
         Beneficiary beneficiary = new Beneficiary();
 
         System.out.println("Para agregar un beneficiario primero debes seleccionar un socio\n.");
         System.out.println("Esta es nuestra lista de socios:\n ");
-        mostrarSocios();
+        showSocios();
 
         System.out.println("Ahora, copia y pega el ID del socio acontinuacion: ");
 
@@ -189,17 +211,19 @@ public class Club {
                 System.out.print("\nPor favor, ingrese la edad del beneficiario: ");
                 beneficiary.setAge(scanner.nextInt());
 
+                System.out.print("\nPor favor, ingrese el tipo de documento del beneficiario (CC, CE, TI): ");
+                beneficiary.setDocument_type(scanner.next());
+
                 System.out.print("\nPor favor, ingrese la cedula del socio: ");
                 beneficiary.setDocument_number(scanner.nextInt());
 
-                System.out.print("\nPor favor, ingrese el tipo de documento del beneficiario (CC, CE, TI): ");
-                beneficiary.setDocument_type(scanner.next());
+                beneficiary.setId_socio(id_socio);
 
                 if (checkIfDocumentNumberExist(beneficiary.getDocument_number(), "beneficiary")) {
                     System.out.println("Ya existe un beneficiario con esta identificacion.");
                     return;
                 }
-                
+
                 beneficiaries.add(beneficiary);
 
                 System.out.println("Beneficiario registrado correctamente.");
@@ -234,5 +258,14 @@ public class Club {
         }
         result = account.getMoney() - total;
         return result > 0;
+    }
+
+    private static boolean checkIsCanBeAddNewSocio(MembershipType type) {
+        if (type.equals(MembershipType.VIP)) {
+            long countVip = memberships.stream().filter(item -> item.getType().equals(MembershipType.VIP)).count();
+            return countVip < 3;
+        } else {
+            return true;
+        }
     }
 }

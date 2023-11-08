@@ -69,10 +69,43 @@ public class Club {
     }
     
     private static void addMoreMoneyToAccount(){
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Ingresa el numero de documento del socio que deseas ingresar mas dinero a la cuenta: ");
+        String documentNumber = scanner.next();
+        
+        System.out.println("Ingresa monto que deseas ingresar a la cuenta: ");
+        double amount = scanner.nextDouble();
+
+        List<Socio> socioFiltered = socios.stream().filter(item -> item.getDocument_number().equals(documentNumber)).toList();
+        
+        if(socioFiltered.isEmpty()){
+             System.out.println("No existe un socio con la cédula recibida como parámetro.");
+            return;
+        }
+        
+        Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).findFirst().get();
+        if (membership.getType().equals(MembershipType.VIP)) {
+            if(amount > 5000000){
+                System.out.println("Para VIP se puede agregar maximo $5'000.000 a la cuenta.");
+                return;
+            } else {
+                accounts.forEach(account -> account.setMoney(account.getMoney() + amount));
+            }
+        }
+        
+        if (membership.getType().equals(MembershipType.REGULAR)) {
+            if(amount > 1000000){
+                System.out.println("Para REGULAR se puede agregar maximo $1'000.000 a la cuenta.");
+                return;
+            } else {
+                accounts.forEach(account -> account.setMoney(account.getMoney() + amount));
+            }
+        }
         
     }
 
-    private static void deleteSocioById() {
+    private static boolean deleteSocioById() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Ingresa el numero de documento del socio a eliminar: ");
@@ -83,26 +116,26 @@ public class Club {
 
         if (socioFiltered.isEmpty()) {
             System.out.println("No existe un socio con la cédula recibida como parámetro.");
-            return;
+            return false;
         }
 
         Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).findFirst().get();
         if (membership.getType().equals(MembershipType.VIP)) {
             System.out.println("No se pueden eliminar socios de tipo VIP.");
-            return;
+            return false;
         }
 
         List<Invoice> invoicesFilteredBySocio = invoices.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).toList();
         long invoicesPending = invoicesFilteredBySocio.stream().filter(item -> item.getStatus().equals(InvoiceStatus.PENDING)).count();
         if (invoicesPending > 0) {
             System.out.println("No se pueden eliminar socios con facturas pendientes de pago.");
-            return;
+            return false;
         }
 
         long beneficiariesBySocio = beneficiaries.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).count();
         if (beneficiariesBySocio > 0) {
             System.out.println("No se puede eliminar un socio con más de un beneficiario.");
-            return;
+            return false;
         }
         
         //Deleting socio
@@ -113,6 +146,8 @@ public class Club {
                     socios.remove(socio);
                     return socio;
                 });
+        System.out.println("Socio eliminado correctamente.");
+        return true;
     }
 
     private static void createSocio() {

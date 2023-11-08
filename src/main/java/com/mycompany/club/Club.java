@@ -122,16 +122,21 @@ public class Club {
             System.out.println("No existe un socio con la cédula recibida como parámetro.");
             return;
         }
-        
+
         invoice.setId_socio(socioFiltered.get(0).getId());
 
-        double result = amountAvailableBySocio(socioFiltered.get(0).getId()) - total;
-        if (result >= 0) {
-            invoices.add(invoice);
-            System.out.println("Factura registrada exitosamente.");
-            return;
+        if (countInvoicesPendingBySocio(socioFiltered.get(0).getId()) < 20) {
+            double result = amountAvailableBySocio(socioFiltered.get(0).getId()) - total;
+            if (result >= 0) {
+                invoices.add(invoice);
+                System.out.println("Factura registrada exitosamente.");
+                return;
+            } else {
+                System.out.println("No se puede registrar la factura por falta de fondos.");
+                return;
+            }
         } else {
-            System.out.println("No se puede registrar la factura por falta de fondos.");
+            System.out.println("Un socio solo puede tener maximo 20 facturas pendientes por pagar.");
             return;
         }
 
@@ -334,10 +339,10 @@ public class Club {
         }
         System.out.println("\n\n");
     }
-    
-      private static void showInvoices() {
+
+    private static void showInvoices() {
         for (Invoice invoice : invoices) {
-            System.out.println(invoice.getId_socio() + "-" + invoice.getAmount()+ " - " + invoice.getStatus()+ " - " + invoice.getConcept());
+            System.out.println(invoice.getId_socio() + "-" + invoice.getAmount() + " - " + invoice.getStatus() + " - " + invoice.getConcept());
         }
         System.out.println("\n\n");
     }
@@ -428,6 +433,13 @@ public class Club {
         }
         result = account.getMoney() - total;
         return result;
+    }
+
+    private static long countInvoicesPendingBySocio(String id_socio) {
+        List<Invoice> invoicesFiltered = invoices.stream().filter(item -> item.getId_socio().equals(id_socio)).toList();
+        List<Invoice> invoicesInPending = invoicesFiltered.stream().filter(item -> item.getStatus().equals(InvoiceStatus.PENDING)).toList();
+
+        return invoicesInPending.size();
     }
 
     private static boolean checkIsCanBeAddNewSocio(MembershipType type) {

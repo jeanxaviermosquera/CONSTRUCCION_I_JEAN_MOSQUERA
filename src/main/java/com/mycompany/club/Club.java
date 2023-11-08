@@ -49,7 +49,7 @@ public class Club {
                     addBeneficiaries();
                     break;
                 case 3:
-                    payInvoice();
+                    //payInvoice();
                     break;
                 case 4:
                     addMoreMoneyToAccount();
@@ -67,17 +67,52 @@ public class Club {
         }
 
     }
+    
+    private static void addMoreMoneyToAccount(){
+        
+    }
 
     private static void deleteSocioById() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Para eliminar un socio primero debes seleccionarlo\n.");
-        System.out.println("Esta es nuestra lista de socios:\n ");
-        showSocios();
+        System.out.println("Ingresa el numero de documento del socio a eliminar: ");
 
-        System.out.println("Ahora, copia y pega el ID del socio acontinuacion: ");
+        String documentNumber = scanner.next();
 
-        String id_socio = scanner.next();
+        List<Socio> socioFiltered = socios.stream().filter(item -> item.getDocument_number().equals(documentNumber)).toList();
+
+        if (socioFiltered.isEmpty()) {
+            System.out.println("No existe un socio con la cédula recibida como parámetro.");
+            return;
+        }
+
+        Membership membership = memberships.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).findFirst().get();
+        if (membership.getType().equals(MembershipType.VIP)) {
+            System.out.println("No se pueden eliminar socios de tipo VIP.");
+            return;
+        }
+
+        List<Invoice> invoicesFilteredBySocio = invoices.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).toList();
+        long invoicesPending = invoicesFilteredBySocio.stream().filter(item -> item.getStatus().equals(InvoiceStatus.PENDING)).count();
+        if (invoicesPending > 0) {
+            System.out.println("No se pueden eliminar socios con facturas pendientes de pago.");
+            return;
+        }
+
+        long beneficiariesBySocio = beneficiaries.stream().filter(item -> item.getId_socio().equals(socioFiltered.get(0).getId())).count();
+        if (beneficiariesBySocio > 0) {
+            System.out.println("No se puede eliminar un socio con más de un beneficiario.");
+            return;
+        }
+        
+        //Deleting socio
+        socios.stream()
+               .filter(item -> item.getDocument_number().equals(documentNumber))
+                .findFirst()
+                .map(socio -> {
+                    socios.remove(socio);
+                    return socio;
+                });
     }
 
     private static void createSocio() {
@@ -113,7 +148,7 @@ public class Club {
             socio.setDocument_type(scanner.next());
 
             System.out.print("\nPor favor, ingrese la cedula del socio: ");
-            socio.setDocument_number(scanner.nextInt());
+            socio.setDocument_number(scanner.next());
 
             if (checkIfDocumentNumberExist(socio.getDocument_number(), "socio")) {
                 System.out.println("Ya existe un socio con esta identificacion.");
@@ -156,11 +191,11 @@ public class Club {
 
     }
 
-    public static boolean checkIfDocumentNumberExist(int documentNumber, String userType) {
+    public static boolean checkIfDocumentNumberExist(String documentNumber, String userType) {
         switch (userType) {
             case "socio" -> {
                 for (Socio socio : socios) {
-                    if (socio.getDocument_number() == documentNumber) {
+                    if (socio.getDocument_number().equals(documentNumber)) {
                         return true;
                     }
                 }
@@ -168,7 +203,7 @@ public class Club {
             }
             case "beneficiary" -> {
                 for (Beneficiary beneficiary : beneficiaries) {
-                    if (beneficiary.getDocument_number() == documentNumber) {
+                    if (beneficiary.getDocument_number().equals(documentNumber)) {
                         return true;
                     }
                 }
@@ -215,7 +250,7 @@ public class Club {
                 beneficiary.setDocument_type(scanner.next());
 
                 System.out.print("\nPor favor, ingrese la cedula del socio: ");
-                beneficiary.setDocument_number(scanner.nextInt());
+                beneficiary.setDocument_number(scanner.next());
 
                 beneficiary.setId_socio(id_socio);
 

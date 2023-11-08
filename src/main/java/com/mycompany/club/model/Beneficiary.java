@@ -14,7 +14,7 @@ public class Beneficiary extends User {
         this.id_socio = id_socio;
     }
 
-    public Beneficiary(String id_socio, String id, String first_name, String last_name, int document_number, String document_type, int age) {
+    public Beneficiary(String id_socio, String id, String first_name, String last_name, String document_number, String document_type, int age) {
         super(id, first_name, last_name, document_number, document_type, age);
         this.id_socio = id_socio;
     }

@@ -9,7 +9,7 @@ public abstract class User {
     private String id;
     private String first_name;
     private String last_name;
-    private int document_number; 
+    private String document_number; 
     private String document_type;
     private int age;
 
@@ -18,7 +18,7 @@ public abstract class User {
 
     //constructores con parametros
 
-    public User(String id, String first_name, String last_name, int document_number, String document_type, int age) {
+    public User(String id, String first_name, String last_name, String document_number, String document_type, int age) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -53,11 +53,11 @@ public abstract class User {
         this.last_name = last_name;
     }
 
-    public int getDocument_number() {
+    public String getDocument_number() {
         return document_number;
     }
 
-    public void setDocument_number(int document_number) {
+    public void setDocument_number(String document_number) {
         this.document_number = document_number;
     }
 
